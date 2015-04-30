@@ -40,12 +40,16 @@ function animate() {
     if (t < total) {
         setPosition();
     } else if (t > total + delay) {
-        if (!contraction) {
-            //拡散しきったとき
-            initMesh();
-        }
         t = 0;
-        contraction = !contraction;
+        console.log(geoIndex);
+        geoIndex++;
+        if (geoIndex >= geometries.length) {
+            geoIndex = 0;
+        }
+        previousVertices = geometries[geoIndex].vertices;
+        futureVertices = geometries[(geoIndex + 1) % geometries.length].vertices;
+        previousFaces = geometries[geoIndex].faces;
+        futureFaces = geometries[(geoIndex + 1) % geometries.length].faces;
         setPosition();
     }
     requestAnimationFrame(animate);
@@ -55,7 +59,7 @@ function animate() {
 
 //オブジェクトの配置
 //var geometry = new THREE.SphereGeometry(5, 16, 16);
-var geometries = [new THREE.SphereGeometry(5, 10, 10), new THREE.BoxGeometry(5, 5, 5, 4, 4, 4), new THREE.TorusGeometry(10, 3, 4, 40), new THREE.TorusKnotGeometry(10, 3, 20, 8, 2, 5, 4)];
+var geometries = [new THREE.SphereGeometry(10, 10, 10), new THREE.BoxGeometry(5, 5, 5, 4, 4, 4), new THREE.TorusGeometry(10, 3, 4, 40), new THREE.TorusKnotGeometry(10, 3, 20, 8, 2, 5, 4)];
 //var material = new THREE.MeshPhongMaterial( { color: 0x00ffff });
 //var cube = new THREE.Mesh( geometry, material );
 //scene.add( cube );
@@ -66,15 +70,12 @@ var triangles = [];
 var pos = [];
 var rot = [];
 var geoIndex = 0;
+var previousVertices = geometries[0].vertices;
+var futureVertices = geometries[1].vertices;
+var previousFaces = geometries[0].faces;
+var futureFaces = geometries[1].faces;
 
-function initMesh() {
-
-    //既存Meshの削除
-    triangles.forEach(function (value, index) {
-        scene.remove(triangles[index]);
-        triangles[index].geometry.dispose();
-        triangles[index].material.dispose();
-    });
+function init() {
 
     var geometry = geometries[geoIndex];
     triangles = [];
@@ -93,35 +94,25 @@ function initMesh() {
         geo.computeFaceNormals();
 
         var triangle = new THREE.Mesh(geo, mat);
-        triangle.position.set(Math.round((Math.random() - 0.5) * DIFFUSION_SIZE), Math.round((Math.random() - 0.5) * DIFFUSION_SIZE), Math.round((Math.random() - 0.5) * DIFFUSION_SIZE));
-        triangle.rotation.set(Math.round((Math.random() - 0.5) * ROTATION_ANGLE), Math.round((Math.random() - 0.5) * ROTATION_ANGLE), Math.round((Math.random() - 0.5) * ROTATION_ANGLE));
         scene.add(triangle);
         triangles.push(triangle);
-        pos.push(triangle.position.clone());
-        rot.push(triangle.rotation.clone());
     });
-
-    geoIndex++;
-    if (geoIndex >= geometries.length) {
-        geoIndex = 0;
-    }
 }
 
 function setPosition() {
-    var easing;
-    if (contraction) {
-        easing = 1 - OutCubic(t, total);
-    } else {
-        easing = OutCubic(t, total);
-    }
+    var easing = OutCubic(t, total);
     triangles.forEach(function (element, index) {
-        triangles[index].position.set(pos[index].x * easing, pos[index].y * easing, pos[index].z * easing);
-        triangles[index].rotation.set(rot[index].x * easing, rot[index].y * easing, rot[index].z * easing);
-        renderer.domElement.style.opacity = 1 - easing;
+        triangles[index].geometry.vertices[0].set(futureVertices[futureFaces[index].a].x * easing + previousVertices[previousFaces[index].a].x * (1 - easing), futureVertices[futureFaces[index].a].y * easing + previousVertices[previousFaces[index].a].y * (1 - easing), futureVertices[futureFaces[index].a].z * easing + previousVertices[previousFaces[index].a].z * (1 - easing));
+        triangles[index].geometry.vertices[1].set(futureVertices[futureFaces[index].b].x * easing + previousVertices[previousFaces[index].b].x * (1 - easing), futureVertices[futureFaces[index].b].y * easing + previousVertices[previousFaces[index].b].y * (1 - easing), futureVertices[futureFaces[index].b].z * easing + previousVertices[previousFaces[index].b].z * (1 - easing));
+        triangles[index].geometry.vertices[2].set(futureVertices[futureFaces[index].c].x * easing + previousVertices[previousFaces[index].c].x * (1 - easing), futureVertices[futureFaces[index].c].y * easing + previousVertices[previousFaces[index].c].y * (1 - easing), futureVertices[futureFaces[index].c].z * easing + previousVertices[previousFaces[index].c].z * (1 - easing));
+
+        triangles[index].geometry.computeFaceNormals();
+        triangles[index].geometry.verticesNeedUpdate = true;
+        triangles[index].geometry.normalsNeedUpdate = true;
     });
 }
 
-initMesh();
+init();
 animate();
 
 function OutCubic(t, total) {
