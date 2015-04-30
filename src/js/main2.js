@@ -106,24 +106,9 @@ function init() {
 function setPosition() {
     var easing = OutCubic(t, total);
     triangles.forEach(function(element, index) {
-        triangles[index].geometry.vertices[0].set(futureVertices[futureFaces[index].a].x * easing
-            + previousVertices[previousFaces[index].a].x * (1 - easing),
-            futureVertices[futureFaces[index].a].y * easing
-            + previousVertices[previousFaces[index].a].y * (1 - easing),
-            futureVertices[futureFaces[index].a].z * easing
-            + previousVertices[previousFaces[index].a].z * (1 - easing));
-        triangles[index].geometry.vertices[1].set(futureVertices[futureFaces[index].b].x * easing
-            + previousVertices[previousFaces[index].b].x * (1 - easing),
-            futureVertices[futureFaces[index].b].y * easing
-            + previousVertices[previousFaces[index].b].y * (1 - easing),
-            futureVertices[futureFaces[index].b].z * easing
-            + previousVertices[previousFaces[index].b].z * (1 - easing));
-        triangles[index].geometry.vertices[2].set(futureVertices[futureFaces[index].c].x * easing
-            + previousVertices[previousFaces[index].c].x * (1 - easing),
-            futureVertices[futureFaces[index].c].y * easing
-            + previousVertices[previousFaces[index].c].y * (1 - easing),
-            futureVertices[futureFaces[index].c].z * easing
-            + previousVertices[previousFaces[index].c].z * (1 - easing));
+        triangles[index].geometry.vertices[0] = futureVertices[futureFaces[index].a].clone().multiplyScalar(easing).add(previousVertices[previousFaces[index].a].clone().multiplyScalar(1 - easing));
+        triangles[index].geometry.vertices[1] = futureVertices[futureFaces[index].b].clone().multiplyScalar(easing).add(previousVertices[previousFaces[index].b].clone().multiplyScalar(1 - easing));
+        triangles[index].geometry.vertices[2] = futureVertices[futureFaces[index].c].clone().multiplyScalar(easing).add(previousVertices[previousFaces[index].c].clone().multiplyScalar(1 - easing));
 
         triangles[index].geometry.computeFaceNormals();
         triangles[index].geometry.verticesNeedUpdate = true;
