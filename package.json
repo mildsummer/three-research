@@ -5,6 +5,10 @@
     "node": "0.10.x",
     "npm": "2.1.x"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mildsummer/three-research.git"
+  },
   "description": "",
   "main": "gulpfile.js",
   "scripts": {
