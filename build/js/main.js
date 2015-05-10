@@ -82,12 +82,12 @@ function initMesh() {
     rot = [];
 
     geometry.faces.forEach(function (face) {
-        var a = geometry.vertices[face.a];
-        var b = geometry.vertices[face.b];
-        var c = geometry.vertices[face.c];
+        var a = geometry.vertices[face.a].clone();
+        var b = geometry.vertices[face.b].clone();
+        var c = geometry.vertices[face.c].clone();
         var geo = new THREE.Geometry();
         var mat = new THREE.MeshPhongMaterial({ color: 16711680 });
-        //mat.side = THREE.DoubleSide;
+        mat.side = THREE.DoubleSide;
         geo.vertices = [a, b, c];
         geo.faces[0] = new THREE.Face3(0, 1, 2);
         geo.computeFaceNormals();
@@ -97,16 +97,8 @@ function initMesh() {
         triangle.rotation.set(Math.round((Math.random() - 0.5) * ROTATION_ANGLE), Math.round((Math.random() - 0.5) * ROTATION_ANGLE), Math.round((Math.random() - 0.5) * ROTATION_ANGLE));
         scene.add(triangle);
         triangles.push(triangle);
-        pos.push({
-            x: triangle.position.x,
-            y: triangle.position.y,
-            z: triangle.position.z
-        });
-        rot.push({
-            x: triangle.rotation.x,
-            y: triangle.rotation.y,
-            z: triangle.rotation.z
-        });
+        pos.push(triangle.position.clone());
+        rot.push(triangle.rotation.clone());
     });
 
     geoIndex++;
