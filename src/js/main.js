@@ -1,3 +1,14 @@
+//fpsの表示----------------------------------
+var stats = new Stats();
+stats.setMode(0); // 0: fps, 1: ms
+
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.zIndex = '1';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+
+document.body.appendChild( stats.domElement );
+//fpsの表示----------------------------------
 
 //シーンの用意
 var scene = new THREE.Scene();
@@ -35,6 +46,8 @@ var delay = 100;
 var contraction = true;//拡散or収縮
 
 function animate(){
+    stats.begin();
+
     t++;
     if(t < total) {
         setPosition();
@@ -46,9 +59,12 @@ function animate(){
         contraction = !contraction;
         setPosition();
     }
-    requestAnimationFrame( animate );
     controls.update();
     renderer.render( scene, camera );
+
+    stats.end();
+
+    requestAnimationFrame( animate );
 }
 
 
