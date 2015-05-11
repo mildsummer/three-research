@@ -44,7 +44,6 @@ controls.keys = [65, 83, 68];
 var t = 0;
 var total = 100;
 var delay = 100;
-var contraction = true; //拡散or収縮
 
 function animate() {
     stats.begin();
@@ -62,7 +61,6 @@ function animate() {
         futureVertices = geometries[(geoIndex + 1) % geometries.length].vertices;
         previousFaces = geometries[geoIndex].faces;
         futureFaces = geometries[(geoIndex + 1) % geometries.length].faces;
-        console.log(geoIndex);
         setPosition();
     }
     controls.update();
@@ -91,7 +89,10 @@ var previousFaces;
 var futureFaces;
 
 function init() {
+
+    var maxLength = 0;
     originalGeometries.forEach(function (geometry) {
+        maxLength = maxLength < geometry.faces.length ? geometry.faces.length : maxLength;
         var trianglesGeometry = new THREE.Geometry();
         geometry.faces.forEach(function (face) {
             var a = geometry.vertices[face.a].clone();
@@ -102,6 +103,14 @@ function init() {
             trianglesGeometry.faces.push(new THREE.Face3(index, index + 1, index + 2));
         });
         geometries.push(trianglesGeometry);
+    });
+
+    //足りない部分を補完しておく
+    geometries.forEach(function (geometry) {
+        for (var i = geometry.faces.length; i < maxLength; i++) {
+            Array.prototype.push.apply(geometry.vertices, [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]);
+            geometry.faces.push(new THREE.Face3(i * 3, i * 3 + 1, i * 3 + 2));
+        }
     });
 
     previousVertices = geometries[0].vertices;
